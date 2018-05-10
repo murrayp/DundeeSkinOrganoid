@@ -43,10 +43,9 @@ void EllipsoidModifier<DIM>::WriteVtk(AbstractCellPopulation<DIM,DIM>& rCellPopu
                                         "ellipsoid_results_"+time.str(),
                                         false);
 
-//    // Create vector to store VTK cell data
-//    std::vector<double> ellipsoid_data;
-    // Create a pointer to a VTK Unstructured Grid data set
-    vtkSmartPointer<vtkUnstructuredGrid> ellipsoid_data = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    // Create vector to store VTK cell data
+    std::vector<c_vector<double, DIM> > ellipsoid_data;
+    ellipsoid_data.resize(rCellPopulation.GetNumNodes());
 
     // Iterate over cell population
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = rCellPopulation.Begin();
@@ -57,18 +56,20 @@ void EllipsoidModifier<DIM>::WriteVtk(AbstractCellPopulation<DIM,DIM>& rCellPopu
         Node<DIM>* p_node = rCellPopulation.GetNode(node_index);
         double a = p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS];
         double b = p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS];
-        double c = a;
 
-        vtkSmartPointer<vtkDoubleArray> ellipsoid = vtkSmartPointer<vtkDoubleArray>::New();
-		ellipsoid->SetNumberOfComponents(9);
-		ellipsoid->SetNumberOfTuples(1);
-		ellipsoid->SetName("Ellipsoid");
+        c_vector<double, DIM> ellipsoid;
+        ellipsoid(0) = a;
+        if (DIM > 1)
+        {
+        	ellipsoid(1) = b;
+        }
+        if (DIM > 2)
+        {
+        	ellipsoid(2) = a; // c = a is assumed by Sutterlin et al
+        }
 
-        // Compute the orientation ellipsoid
-        double mat[9] = {a, 0, 0, 0, b, 0, 0, 0, c};
-
-        ellipsoid->InsertTuple(node_index, mat);
-        ellipsoid_data->GetPointData()->AddArray(ellipsoid);
+        // Populate data for VTK
+        ellipsoid_data[node_index] = ellipsoid;
     }
 
     mesh_writer.AddPointData("ellipsoids", ellipsoid_data);
