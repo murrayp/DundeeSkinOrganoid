@@ -4,24 +4,17 @@
 
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
-
 #include "AbstractCellBasedTestSuite.hpp"
-
 #include "CellsGenerator.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
 #include "UniformCellCycleModel.hpp"
-
 #include "OffLatticeSimulation.hpp"
 #include "SmartPointers.hpp"
-
-#include "NodesOnlyMesh.hpp"
-
 #include "EllipsoidNodeBasedCellPopulation.hpp"
 #include "SutterlinBasementMembraneForce.hpp"
 #include "SutterlinEllipsoidForce.hpp"
 #include "EllipsoidNodeAttributes.hpp"
-
-#include "Debug.hpp"
+#include "EllipsoidModifier.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 class TestSutterlinEllipsoidCells : public AbstractCellBasedTestSuite
@@ -54,8 +47,8 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
         	mesh.GetNode(i)->AddNodeAttribute(0.0);
-        	mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 0.5;
-        	mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 0.2;
+        	mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 5; // micrometres
+        	mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 5; // micrometres
         }
 
         // Create a vector of cells
@@ -78,6 +71,11 @@ public:
         simulator.AddForce(p_ellipsoid_force);
         MAKE_PTR(SutterlinBasementMembraneForce<3>, p_bm_force);
         simulator.AddForce(p_bm_force);
+
+        // Add simulation modifier allowing ellipsoids to be visualized in Paraview
+        MAKE_PTR(EllipsoidModifier<3>, p_modifier);
+		p_modifier->SetOutputDirectory("TestSutterlinEllipsoidCells");
+		simulator.AddSimulationModifier(p_modifier);
 
         // Run the simulation
         simulator.Solve();

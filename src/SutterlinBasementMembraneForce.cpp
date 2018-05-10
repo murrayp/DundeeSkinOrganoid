@@ -36,12 +36,12 @@ void SutterlinBasementMembraneForce<DIM>::AddForceContribution(AbstractCellPopul
 	    const c_vector<double, DIM>& r_c = p_node->rGetLocation();
 
     	///\todo only add this force to basal cells!
-    	if (r_c(DIM-1) < 0.75)
+    	if (r_c(DIM-1) < 0.3)
     	{
 			c_vector<double, DIM> r_bm = r_c;
 			r_bm(DIM-1) = 0.0;
 
-			c_vector<double, DIM> v_c_bm = r_c - r_bm;
+			c_vector<double, DIM> v_c_bm = r_bm - r_c;
 			double d_c_bm = norm_2(v_c_bm);
 			v_c_bm /= d_c_bm;
 

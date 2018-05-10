@@ -9,7 +9,7 @@ SutterlinEllipsoidForce<DIM>::SutterlinEllipsoidForce()
      mDeltaOl(0.15),
      mDeltaOlMax(0.5),
      mDOlMin(0.1), // micrometres
-     mKPr(2.2e-3), // N m^{-1}
+     mKPr(2.2e-4), // N m^{-1}
      mDeltaAdh(1.3),
      mKAdh(2.2e-3) // N m^{-1}
 {
@@ -52,17 +52,17 @@ c_vector<double, DIM> SutterlinEllipsoidForce<DIM>::CalculateForceBetweenNodes(u
 
     unit_vector /= distance_between_nodes;
 
-    double temp_a = unit_vector(0)*unit_vector(0)/(semi_major_axis_a*semi_major_axis_a);
-    double temp_b = unit_vector(0)*unit_vector(0)/(semi_major_axis_b*semi_major_axis_b);
+    double temp_a = unit_vector(0)*unit_vector(0)/(pow(semi_major_axis_a,2));
+    double temp_b = unit_vector(0)*unit_vector(0)/(pow(semi_major_axis_b,2));
     if (DIM > 1)
     {
-    	temp_a += unit_vector(1)*unit_vector(1)/(semi_minor_axis_a*semi_minor_axis_a);
-    	temp_b += unit_vector(1)*unit_vector(1)/(semi_minor_axis_b*semi_minor_axis_b);
+    	temp_a += unit_vector(1)*unit_vector(1)/(pow(semi_minor_axis_a,2));
+    	temp_b += unit_vector(1)*unit_vector(1)/(pow(semi_minor_axis_b,2));
     }
     if (DIM > 2)
     {
-    	temp_a += unit_vector(2)*unit_vector(2)/(semi_major_axis_a*semi_major_axis_a);
-    	temp_b += unit_vector(2)*unit_vector(2)/(semi_major_axis_b*semi_major_axis_b);
+    	temp_a += unit_vector(2)*unit_vector(2)/(pow(semi_major_axis_a,2));
+    	temp_b += unit_vector(2)*unit_vector(2)/(pow(semi_major_axis_b,2));
     }
 
     double d_opt = norm_2(unit_vector/temp_a) + norm_2(-unit_vector/temp_b);
