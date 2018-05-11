@@ -1,37 +1,3 @@
-/*
-
-Copyright (c) 2005-2017, University of Oxford.
-All rights reserved.
-
-University of Oxford means the Chancellor, Masters and Scholars of the
-University of Oxford, having an administrative office at Wellington
-Square, Oxford OX1 2JD, UK.
-
-This file is part of Chaste.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
- * Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
- * Neither the name of the University of Oxford nor the names of its
-   contributors may be used to endorse or promote products derived from this
-   software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-*/
 
 #ifndef TESTSKINORGANOID3D_HPP_
 #define TESTSKINORGANOID3D_HPP_
@@ -60,9 +26,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PlaneBoundaryCondition.hpp"
 #include "SkinOrganoidModifier.hpp"
 
-
 #include "StemCellProliferativeType.hpp"
-
 
 #include "CheckpointArchiveTypes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
@@ -72,24 +36,11 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "OffLatticeSimulation.hpp"
 #include "SmartPointers.hpp"
 #include "EllipsoidNodeBasedCellPopulation.hpp"
-#include "SutterlinBasementMembraneForce.hpp"
-#include "SutterlinEllipsoidForce.hpp"
+#include "SutterlinEllipsoidAndBasementMembraneForce.hpp"
 #include "EllipsoidNodeAttributes.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "CellEllipsoidWriter.hpp"
-
-
-
-
-
-
-
-
 #include "UniformCellCycleModel.hpp"
-
-
-
-
 
 // Cell population writers
 #include "CellProliferativeTypesCountWriter.hpp"
@@ -116,8 +67,6 @@ private:
     }
 
 public:
-
-
 
     void TestSkinOrgnaoid3D()
     {
@@ -162,17 +111,12 @@ public:
           //p_cell>AddCellProperty(p_label);
 
           cells.push_back(p_cell);
-
-
       }
-
 
       MeshBasedCellPopulation<3> cell_population(mesh, cells);
       cell_population.SetWriteVtkAsPoints(true);
       cell_population.AddCellWriter<SkinOrganoidLabelWriter>();
       //cell_population.AddCellWriter<CellLabelWriter>();
-
-
 
         OffLatticeSimulation<3> simulator(cell_population);
         simulator.SetOutputDirectory("TestSkinOrganoid3D");
@@ -204,142 +148,132 @@ public:
 
         simulator.SetEndTime(0.21);
         simulator.Solve();
-
-
     }
 
     void TestSutterlinWithCellDifferentiation()
-       {
-           RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+   {
+	   RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
-           // Create a mesh
-           std::vector<Node<3>*> nodes;
-           unsigned index = 0;
-           unsigned cells_across = 5;
-           double scaling = 1.0;
-           for (unsigned i=0; i<cells_across; i++)
-           {
-               for (unsigned j=0; j<cells_across; j++)
-               {
-                   for (unsigned k=0; k<cells_across; k++)
-                   {
-                       Node<3>* p_node = new Node<3>(index, false,  (double) i * scaling + 0.05*p_gen->ranf() , (double) j * scaling + 0.05*p_gen->ranf(), (double) k * scaling + 0.05*p_gen->ranf());
-                       nodes.push_back(p_node);
-                       index++;
-                   }
-               }
-           }
-           NodesOnlyMesh<3> mesh;
-           mesh.ConstructNodesWithoutMesh(nodes, 1.5);
+	   // Create a mesh
+	   std::vector<Node<3>*> nodes;
+	   unsigned index = 0;
+	   unsigned cells_across = 5;
+	   double scaling = 1.0;
+	   for (unsigned i=0; i<cells_across; i++)
+	   {
+		   for (unsigned j=0; j<cells_across; j++)
+		   {
+			   for (unsigned k=0; k<cells_across; k++)
+			   {
+				   Node<3>* p_node = new Node<3>(index, false,  (double) i * scaling + 0.05*p_gen->ranf() , (double) j * scaling + 0.05*p_gen->ranf(), (double) k * scaling + 0.05*p_gen->ranf());
+				   nodes.push_back(p_node);
+				   index++;
+			   }
+		   }
+	   }
+	   NodesOnlyMesh<3> mesh;
+	   mesh.ConstructNodesWithoutMesh(nodes, 1.5);
 
-           for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-           {
-               mesh.GetNode(i)->AddNodeAttribute(0.0);
-               mesh.GetNode(0u)->rGetNodeAttributes().resize(2);
-               mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 0.55; // micrometres
-               mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 0.5; // micrometres
-           }
+	   for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+	   {
+		   mesh.GetNode(i)->AddNodeAttribute(0.0);
+		   mesh.GetNode(0u)->rGetNodeAttributes().resize(2);
+		   mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 0.55; // micrometres
+		   mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 0.5; // micrometres
+	   }
 
-           // Create cells
-               std::vector<CellPtr> cells;
-               MAKE_PTR(WildTypeCellMutationState, p_state);
-               MAKE_PTR(StemCellProliferativeType, p_type);
-               for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-               {
-                   UniformCellCycleModel* p_model = new UniformCellCycleModel();
-                   p_model->SetMinCellCycleDuration(8.0);
-                   p_model->SetMaxCellCycleDuration(15.6);
-                   CellPtr p_cell(new Cell(p_state, p_model));
-                   p_cell->SetCellProliferativeType(p_type);
-
-
-                   MAKE_PTR(SkinOrganoidProperty, p_property);
-                   p_property->SetCellDifferentiatedType(0u);
-                   p_property->SetIntraCellularCalcium(0.0);
-
-                   p_cell->AddCellProperty(p_property);
+	   // Create cells
+	   std::vector<CellPtr> cells;
+	   MAKE_PTR(WildTypeCellMutationState, p_state);
+	   MAKE_PTR(StemCellProliferativeType, p_type);
+	   for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+	   {
+		   UniformCellCycleModel* p_model = new UniformCellCycleModel();
+		   p_model->SetMinCellCycleDuration(8.0);
+		   p_model->SetMaxCellCycleDuration(15.6);
+		   CellPtr p_cell(new Cell(p_state, p_model));
+		   p_cell->SetCellProliferativeType(p_type);
 
 
-                   double birth_time = -RandomNumberGenerator::Instance()->ranf();
-                   p_cell->SetBirthTime(birth_time);
+		   MAKE_PTR(SkinOrganoidProperty, p_property);
+		   p_property->SetCellDifferentiatedType(0u);
+		   p_property->SetIntraCellularCalcium(0.0);
+
+		   p_cell->AddCellProperty(p_property);
 
 
-
-                   //p_label->SetCellDifferentiatedType(0u);
-                   //p_cell>AddCellProperty(p_label);
-
-                   cells.push_back(p_cell);
-
-
-               }
-
-           // Create a cell population
-           EllipsoidNodeBasedCellPopulation<3> cell_population(mesh, cells);
-           //cell_population.SetWriteVtkAsPoints(true);
-           cell_population.AddCellWriter<SkinOrganoidLabelWriter>();
-           cell_population.AddCellWriter<CellEllipsoidWriter>();
-
-
-           // Create a simulation
-           OffLatticeSimulation<3> simulator(cell_population);
-           simulator.SetOutputDirectory("TestSutterlinEllipsoidCellsahh");
-           simulator.SetSamplingTimestepMultiple(12);
-           simulator.SetEndTime(20.0);
-
-           // Pass force laws to the simulation
-           MAKE_PTR(SutterlinEllipsoidForce<3>, p_ellipsoid_force);
-           simulator.AddForce(p_ellipsoid_force);
-           MAKE_PTR(SutterlinBasementMembraneForce<3>, p_bm_force);
-           simulator.AddForce(p_bm_force);
-
-
-           MAKE_PTR(SkinOrganoidModifier<3>, p_modifier2);
-           simulator.AddSimulationModifier(p_modifier2);
-
-           c_vector<double,3> point1 = zero_vector<double>(3);
-           c_vector<double,3> normal1 = zero_vector<double>(3);
-           point1(2)=-0.5;
-           normal1(2) = -1.0;
-           MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc1, (&cell_population, point1, normal1)); // y>0
-           simulator.AddCellPopulationBoundaryCondition(p_bc1);
+		   double birth_time = -RandomNumberGenerator::Instance()->ranf();
+		   p_cell->SetBirthTime(birth_time);
 
 
 
-           c_vector<double,3> point2 = zero_vector<double>(3);
-           c_vector<double,3> normal2 = zero_vector<double>(3);
-           point2(0)=-0.5;
-           normal2(0) = -1.0;
+		   //p_label->SetCellDifferentiatedType(0u);
+		   //p_cell>AddCellProperty(p_label);
 
-           MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc2, (&cell_population, point2, normal2)); // y>0
-           simulator.AddCellPopulationBoundaryCondition(p_bc2);
+		   cells.push_back(p_cell);
+	   }
 
-           c_vector<double,3> point3 = zero_vector<double>(3);
-           c_vector<double,3> normal3 = zero_vector<double>(3);
-           point3(0)=5.5;
-           normal3(0) = 1.0;
+	   // Create a cell population
+	   EllipsoidNodeBasedCellPopulation<3> cell_population(mesh, cells);
+	   //cell_population.SetWriteVtkAsPoints(true);
+	   cell_population.AddCellWriter<SkinOrganoidLabelWriter>();
+	   cell_population.AddCellWriter<CellEllipsoidWriter>();
 
-           MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc3, (&cell_population, point3, normal3)); // y>0
-           simulator.AddCellPopulationBoundaryCondition(p_bc3);
-           /*
-           c_vector<double,3> point4 = zero_vector<double>(3);
-          c_vector<double,3> normal4 = zero_vector<double>(3);
-          point4(1)=-0.5;
-          normal4(1) = -1.0;
+	   // Create a simulation
+	   OffLatticeSimulation<3> simulator(cell_population);
+	   simulator.SetOutputDirectory("TestSutterlinEllipsoidCellsahh");
+	   simulator.SetSamplingTimestepMultiple(12);
+	   simulator.SetEndTime(20.0);
 
-          MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc4, (&cell_population, point4, normal4)); // y>0
-          simulator.AddCellPopulationBoundaryCondition(p_bc4);
+	   // Pass force law to the simulation
+	   MAKE_PTR(SutterlinEllipsoidAndBasementMembraneForce<3>, p_force);
+	   simulator.AddForce(p_force);
 
-          c_vector<double,3> point5 = zero_vector<double>(3);
-          c_vector<double,3> normal5 = zero_vector<double>(3);
-          point5(1)=5.5;
-          normal5(1) = 1.0;
+	   MAKE_PTR(SkinOrganoidModifier<3>, p_modifier2);
+	   simulator.AddSimulationModifier(p_modifier2);
 
-          MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc5, (&cell_population, point5, normal5)); // y>0
-          simulator.AddCellPopulationBoundaryCondition(p_bc5);
+	   c_vector<double,3> point1 = zero_vector<double>(3);
+	   c_vector<double,3> normal1 = zero_vector<double>(3);
+	   point1(2)=-0.5;
+	   normal1(2) = -1.0;
+	   MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc1, (&cell_population, point1, normal1)); // y>0
+	   simulator.AddCellPopulationBoundaryCondition(p_bc1);
+
+	   c_vector<double,3> point2 = zero_vector<double>(3);
+	   c_vector<double,3> normal2 = zero_vector<double>(3);
+	   point2(0)=-0.5;
+	   normal2(0) = -1.0;
+
+	   MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc2, (&cell_population, point2, normal2)); // y>0
+	   simulator.AddCellPopulationBoundaryCondition(p_bc2);
+
+	   c_vector<double,3> point3 = zero_vector<double>(3);
+	   c_vector<double,3> normal3 = zero_vector<double>(3);
+	   point3(0)=5.5;
+	   normal3(0) = 1.0;
+
+	   MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc3, (&cell_population, point3, normal3)); // y>0
+	   simulator.AddCellPopulationBoundaryCondition(p_bc3);
+	   /*
+	   c_vector<double,3> point4 = zero_vector<double>(3);
+	  c_vector<double,3> normal4 = zero_vector<double>(3);
+	  point4(1)=-0.5;
+	  normal4(1) = -1.0;
+
+	  MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc4, (&cell_population, point4, normal4)); // y>0
+	  simulator.AddCellPopulationBoundaryCondition(p_bc4);
+
+	  c_vector<double,3> point5 = zero_vector<double>(3);
+	  c_vector<double,3> normal5 = zero_vector<double>(3);
+	  point5(1)=5.5;
+	  normal5(1) = 1.0;
+
+	  MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc5, (&cell_population, point5, normal5)); // y>0
+	  simulator.AddCellPopulationBoundaryCondition(p_bc5);
 
 */
-           // Run the simulation
-           simulator.Solve();
+	   // Run the simulation
+	   simulator.Solve();
 
 //           for (EllipsoidNodeBasedCellPopulation<2>::Iterator cell_iter = simulator.rGetCellPopulation().Begin();
 //                            cell_iter != simulator.rGetCellPopulation().End();
@@ -366,14 +300,12 @@ public:
 //            }
 
 
-           // Avoid memory leaks
-           for (unsigned i=0; i<nodes.size(); i++)
-           {
-               delete nodes[i];
-           }
-       }
-
-
+	   // Avoid memory leaks
+	   for (unsigned i=0; i<nodes.size(); i++)
+	   {
+		   delete nodes[i];
+	   }
+   }
 };
 
 #endif /*TESTSKINORGANOID3D_HPP_*/

@@ -1,6 +1,6 @@
 
-#ifndef SUTTERLINELLIPSOIDFORCE
-#define SUTTERLINELLIPSOIDFORCE
+#ifndef SUTTERLINELLIPSOIDANDBASEMENTMEMBRANEFORCE
+#define SUTTERLINELLIPSOIDANDBASEMENTMEMBRANEFORCE
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
@@ -17,7 +17,7 @@
  * 7:43472. doi:10.1038/srep43472
  */
 template<unsigned DIM>
-class SutterlinEllipsoidForce : public AbstractTwoBodyInteractionForce<DIM>
+class SutterlinEllipsoidAndBasementMembraneForce : public AbstractForce<DIM>
 {
 private:
 
@@ -32,13 +32,14 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractTwoBodyInteractionForce<DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
         archive & mDeltaOl;
         archive & mDeltaOlMax;
         archive & mDOlMin;
         archive & mKPr;
         archive & mDeltaAdh;
         archive & mKAdh;
+        archive & mKCBm;
     }
 
     /**
@@ -77,6 +78,12 @@ private:
      */
     double mKAdh;
 
+    /**
+     * Parameter k_c_bm in Sütterlin et al.
+     * Defaults to the value 0.01.
+     */
+    double mKCBm;
+
 public:
 
     ///\todo add get and set methods for these parameters
@@ -84,7 +91,15 @@ public:
     /**
      * Constructor.
      */
-    SutterlinEllipsoidForce();
+    SutterlinEllipsoidAndBasementMembraneForce();
+
+    /**
+     * Overridden AddForceContribution() method.
+     *
+     * @param rCellPopulation reference to the cell population
+     *
+     */
+    void AddForceContribution(AbstractCellPopulation<DIM>& rCellPopulation);
 
     /**
      * @return the force between two nodes.
@@ -106,6 +121,6 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(SutterlinEllipsoidForce)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(SutterlinEllipsoidAndBasementMembraneForce)
 
-#endif /*SUTTERLINELLIPSOIDFORCE*/
+#endif /*SUTTERLINELLIPSOIDANDBASEMENTMEMBRANEFORCE*/

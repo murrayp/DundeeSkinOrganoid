@@ -11,8 +11,7 @@
 #include "OffLatticeSimulation.hpp"
 #include "SmartPointers.hpp"
 #include "EllipsoidNodeBasedCellPopulation.hpp"
-#include "SutterlinBasementMembraneForce.hpp"
-#include "SutterlinEllipsoidForce.hpp"
+#include "SutterlinEllipsoidAndBasementMembraneForce.hpp"
 #include "EllipsoidNodeAttributes.hpp"
 #include "CellEllipsoidWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -68,11 +67,9 @@ public:
         simulator.SetSamplingTimestepMultiple(12);
         simulator.SetEndTime(30.0);
 
-        // Pass force laws to the simulation
-        MAKE_PTR(SutterlinEllipsoidForce<3>, p_ellipsoid_force);
-        simulator.AddForce(p_ellipsoid_force);
-        MAKE_PTR(SutterlinBasementMembraneForce<3>, p_bm_force);
-        simulator.AddForce(p_bm_force);
+        // Pass force law to the simulation
+        MAKE_PTR(SutterlinEllipsoidAndBasementMembraneForce<3>, p_force);
+        simulator.AddForce(p_force);
 
         // Run the simulation
         simulator.Solve();
