@@ -14,7 +14,7 @@
 #include "SutterlinBasementMembraneForce.hpp"
 #include "SutterlinEllipsoidForce.hpp"
 #include "EllipsoidNodeAttributes.hpp"
-#include "EllipsoidModifier.hpp"
+#include "CellEllipsoidWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 class TestSutterlinEllipsoidCells : public AbstractCellBasedTestSuite
@@ -28,7 +28,7 @@ public:
         std::vector<Node<3>*> nodes;
         unsigned index = 0;
         unsigned cells_across = 5;
-        double scaling = 0.1;
+        double scaling = 1;
         for (unsigned i=0; i<cells_across; i++)
         {
             for (unsigned j=0; j<cells_across; j++)
@@ -48,7 +48,7 @@ public:
         {
         	mesh.GetNode(i)->AddNodeAttribute(0.0);
         	mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 5; // micrometres
-        	mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 5; // micrometres
+        	mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 2; // micrometres
         }
 
         // Create a vector of cells
@@ -60,22 +60,19 @@ public:
         // Create a cell population
         EllipsoidNodeBasedCellPopulation<3> cell_population(mesh, cells);
 
+        cell_population.AddCellWriter<CellEllipsoidWriter>();
+
         // Create a simulation
         OffLatticeSimulation<3> simulator(cell_population);
         simulator.SetOutputDirectory("TestSutterlinEllipsoidCells");
         simulator.SetSamplingTimestepMultiple(12);
-        simulator.SetEndTime(20.0);
+        simulator.SetEndTime(30.0);
 
         // Pass force laws to the simulation
         MAKE_PTR(SutterlinEllipsoidForce<3>, p_ellipsoid_force);
         simulator.AddForce(p_ellipsoid_force);
         MAKE_PTR(SutterlinBasementMembraneForce<3>, p_bm_force);
         simulator.AddForce(p_bm_force);
-
-        // Add simulation modifier allowing ellipsoids to be visualized in Paraview
-        MAKE_PTR(EllipsoidModifier<3>, p_modifier);
-		p_modifier->SetOutputDirectory("TestSutterlinEllipsoidCells");
-		simulator.AddSimulationModifier(p_modifier);
 
         // Run the simulation
         simulator.Solve();

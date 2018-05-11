@@ -70,6 +70,11 @@ c_vector<double, DIM> SutterlinEllipsoidForce<DIM>::CalculateForceBetweenNodes(u
 
     double d_ol = d_hat_opt - distance_between_nodes;
     double d_ol_max = mDeltaOlMax*d_hat_opt;
+//    if (SimulationTime::Instance()->GetTime() > 19.0)
+//    {
+//		PRINT_VARIABLE(d_ol);
+//		PRINT_VARIABLE(d_ol_max);
+//    }
 
     // Compute overlapping force magnitude
     double F_pr = 0.0;
