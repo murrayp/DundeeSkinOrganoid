@@ -20,6 +20,9 @@ private:
     /** \todo Document member */
     unsigned mCellDifferentiatedType;
 
+    double mIntraCellularCalcium;
+
+
 
 public:
 
@@ -39,6 +42,11 @@ public:
     unsigned GetCellDifferentiatedType();
 
     void SetCellDifferentiatedType(unsigned cell_differentiated_type);
+
+    double GetIntraCellularCalcium();
+
+    void SetIntraCellularCalcium(double intraCellularCalcium);
+
 
 
 

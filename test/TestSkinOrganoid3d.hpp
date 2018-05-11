@@ -61,6 +61,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SkinOrganoidModifier.hpp"
 
 
+#include "StemCellProliferativeType.hpp"
+
+
 #include "CheckpointArchiveTypes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "CellsGenerator.hpp"
@@ -72,8 +75,10 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SutterlinBasementMembraneForce.hpp"
 #include "SutterlinEllipsoidForce.hpp"
 #include "EllipsoidNodeAttributes.hpp"
-#include "EllipsoidModifier.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "CellEllipsoidWriter.hpp"
+
+
 
 
 
@@ -211,7 +216,7 @@ public:
            std::vector<Node<3>*> nodes;
            unsigned index = 0;
            unsigned cells_across = 5;
-           double scaling = 0.1;
+           double scaling = 1.0;
            for (unsigned i=0; i<cells_across; i++)
            {
                for (unsigned j=0; j<cells_across; j++)
@@ -230,25 +235,28 @@ public:
            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
            {
                mesh.GetNode(i)->AddNodeAttribute(0.0);
-               mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 5; // micrometres
-               mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 5; // micrometres
+               mesh.GetNode(0u)->rGetNodeAttributes().resize(2);
+               mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 0.55; // micrometres
+               mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 0.5; // micrometres
            }
 
            // Create cells
                std::vector<CellPtr> cells;
                MAKE_PTR(WildTypeCellMutationState, p_state);
-               MAKE_PTR(TransitCellProliferativeType, p_type);
+               MAKE_PTR(StemCellProliferativeType, p_type);
                for (unsigned i=0; i<mesh.GetNumNodes(); i++)
                {
                    UniformCellCycleModel* p_model = new UniformCellCycleModel();
-                   p_model->SetMinCellCycleDuration(1.0);
-                   p_model->SetMaxCellCycleDuration(1.6);
+                   p_model->SetMinCellCycleDuration(8.0);
+                   p_model->SetMaxCellCycleDuration(15.6);
                    CellPtr p_cell(new Cell(p_state, p_model));
                    p_cell->SetCellProliferativeType(p_type);
 
 
                    MAKE_PTR(SkinOrganoidProperty, p_property);
                    p_property->SetCellDifferentiatedType(0u);
+                   p_property->SetIntraCellularCalcium(0.0);
+
                    p_cell->AddCellProperty(p_property);
 
 
@@ -269,6 +277,8 @@ public:
            EllipsoidNodeBasedCellPopulation<3> cell_population(mesh, cells);
            //cell_population.SetWriteVtkAsPoints(true);
            cell_population.AddCellWriter<SkinOrganoidLabelWriter>();
+           cell_population.AddCellWriter<CellEllipsoidWriter>();
+
 
            // Create a simulation
            OffLatticeSimulation<3> simulator(cell_population);
@@ -282,14 +292,52 @@ public:
            MAKE_PTR(SutterlinBasementMembraneForce<3>, p_bm_force);
            simulator.AddForce(p_bm_force);
 
-           // Add simulation modifier allowing ellipsoids to be visualized in Paraview
-           MAKE_PTR(EllipsoidModifier<3>, p_modifier);
-           p_modifier->SetOutputDirectory("TestSutterlinEllipsoidCellsahh");
-           simulator.AddSimulationModifier(p_modifier);
 
            MAKE_PTR(SkinOrganoidModifier<3>, p_modifier2);
            simulator.AddSimulationModifier(p_modifier2);
 
+           c_vector<double,3> point1 = zero_vector<double>(3);
+           c_vector<double,3> normal1 = zero_vector<double>(3);
+           point1(2)=-0.5;
+           normal1(2) = -1.0;
+           MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc1, (&cell_population, point1, normal1)); // y>0
+           simulator.AddCellPopulationBoundaryCondition(p_bc1);
+
+
+
+           c_vector<double,3> point2 = zero_vector<double>(3);
+           c_vector<double,3> normal2 = zero_vector<double>(3);
+           point2(0)=-0.5;
+           normal2(0) = -1.0;
+
+           MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc2, (&cell_population, point2, normal2)); // y>0
+           simulator.AddCellPopulationBoundaryCondition(p_bc2);
+
+           c_vector<double,3> point3 = zero_vector<double>(3);
+           c_vector<double,3> normal3 = zero_vector<double>(3);
+           point3(0)=5.5;
+           normal3(0) = 1.0;
+
+           MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc3, (&cell_population, point3, normal3)); // y>0
+           simulator.AddCellPopulationBoundaryCondition(p_bc3);
+           /*
+           c_vector<double,3> point4 = zero_vector<double>(3);
+          c_vector<double,3> normal4 = zero_vector<double>(3);
+          point4(1)=-0.5;
+          normal4(1) = -1.0;
+
+          MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc4, (&cell_population, point4, normal4)); // y>0
+          simulator.AddCellPopulationBoundaryCondition(p_bc4);
+
+          c_vector<double,3> point5 = zero_vector<double>(3);
+          c_vector<double,3> normal5 = zero_vector<double>(3);
+          point5(1)=5.5;
+          normal5(1) = 1.0;
+
+          MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc5, (&cell_population, point5, normal5)); // y>0
+          simulator.AddCellPopulationBoundaryCondition(p_bc5);
+
+*/
            // Run the simulation
            simulator.Solve();
 

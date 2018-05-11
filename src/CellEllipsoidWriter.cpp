@@ -3,6 +3,7 @@
 #include "EllipsoidNodeBasedCellPopulation.hpp"
 #include "UblasVectorInclude.hpp"
 #include "EllipsoidNodeAttributes.hpp"
+#include "Debug.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 CellEllipsoidWriter<ELEMENT_DIM, SPACE_DIM>::CellEllipsoidWriter()
@@ -29,14 +30,13 @@ c_vector<double, SPACE_DIM> CellEllipsoidWriter<ELEMENT_DIM, SPACE_DIM>::GetVect
         ellipsoid(0) = a;
         if (SPACE_DIM > 1)
         {
-        	ellipsoid(1) = b;
+        	ellipsoid(1) = a;
         }
         if (SPACE_DIM > 2)
         {
-        	ellipsoid(2) = a; // c = a is assumed by Sutterlin et al
+        	ellipsoid(2) = b; // c = a is assumed by Sutterlin et al
         }
     }
-
     return ellipsoid;
 }
 

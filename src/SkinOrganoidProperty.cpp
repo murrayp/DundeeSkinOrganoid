@@ -21,6 +21,16 @@ void SkinOrganoidProperty::SetCellDifferentiatedType(unsigned cell_differentiate
     mCellDifferentiatedType=cell_differentiated_type;
 }
 
+double SkinOrganoidProperty::GetIntraCellularCalcium()
+{
+    return mIntraCellularCalcium;
+}
+
+void SkinOrganoidProperty::SetIntraCellularCalcium(double intraCellularCalcium)
+{
+    mIntraCellularCalcium=intraCellularCalcium;
+}
+
 
 
 #include "SerializationExportWrapperForCpp.hpp"
