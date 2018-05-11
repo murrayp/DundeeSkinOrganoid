@@ -22,6 +22,7 @@ private:
 
     double mIntraCellularCalcium;
 
+    double md_IntraCellularCalciumd_t;
 
 
 public:
@@ -46,6 +47,12 @@ public:
     double GetIntraCellularCalcium();
 
     void SetIntraCellularCalcium(double intraCellularCalcium);
+
+    double GetD_IntraCellularCalciumD_t();
+
+    void SetD_IntraCellularCalciumD_t(double d_intraCellularCalcium_dt);
+
+
 
 
 

@@ -47,7 +47,7 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
     rCellPopulation.Update();
     double dt = SimulationTime::Instance()->GetTimeStep();
 
-    // Iterate over cell population and update differentiation states
+    // Iterate over cell population and compute time derivatives
 	for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = rCellPopulation.Begin();
          cell_iter != rCellPopulation.End();
          ++cell_iter)
@@ -66,7 +66,69 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
 
         double intracellular_calcium = p_property->GetIntraCellularCalcium();
 
-        double new_intracellular_calcium = intracellular_calcium + dt;
+
+        double d_intraCellularCalcium_dt=0.0;
+
+
+        std::set<unsigned> neighbour_indices = rCellPopulation.GetNeighbouringLocationIndices(*cell_iter);
+
+       // Compute this cell's average neighbouring Delta concentration and store in CellData
+       if (!neighbour_indices.empty())
+       {
+           for (std::set<unsigned>::iterator iter = neighbour_indices.begin();
+                iter != neighbour_indices.end();
+                ++iter)
+           {
+
+               CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(*iter);
+
+               CellPropertyCollection collection_neighbour = p_cell->rGetCellPropertyCollection().template GetProperties<SkinOrganoidProperty>();
+               boost::shared_ptr<SkinOrganoidProperty> p_property_neighbour = boost::static_pointer_cast<SkinOrganoidProperty>(collection_neighbour.GetProperty());
+               double intracellular_calcium_neighbour = p_property->GetIntraCellularCalcium();
+
+
+               double cell_wise_contribution;
+               double transport_constant=1.0;
+
+
+
+               cell_wise_contribution = transport_constant*(intracellular_calcium_neighbour - intracellular_calcium);
+
+
+               d_intraCellularCalcium_dt+=cell_wise_contribution;
+
+           }
+
+
+       }
+       p_property->SetD_IntraCellularCalciumD_t(d_intraCellularCalcium_dt);
+
+
+    }
+
+
+
+	// Update Cell properties
+	for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = rCellPopulation.Begin();
+	         cell_iter != rCellPopulation.End();
+	         ++cell_iter)
+	    {
+	        // Get this cell's type six machine property data
+	        CellPropertyCollection collection = cell_iter->rGetCellPropertyCollection().template GetProperties<SkinOrganoidProperty>();
+	        if (collection.GetSize() != 1)
+	        {
+	            EXCEPTION("SkinOrganoidModifier cannot be used unless each cell has a SkinOrganoidProperty");
+	        }
+	        boost::shared_ptr<SkinOrganoidProperty> p_property = boost::static_pointer_cast<SkinOrganoidProperty>(collection.GetProperty());
+	        //unsigned cell_differentiated_type = p_property->GetCellDifferentiatedType();
+	        //unsigned& r_NumMachineFiresInThisTimeStep = p_property->rGetNumMachineFiresInThisTimeStep();
+
+
+	        double intracellular_calcium = p_property->GetIntraCellularCalcium();
+            double d_intraCellularCalcium_dt = p_property->GetD_IntraCellularCalciumD_t();
+
+
+	        double new_intracellular_calcium = intracellular_calcium + d_intraCellularCalcium_dt*dt;
 
         p_property->SetIntraCellularCalcium(new_intracellular_calcium);
 
@@ -88,6 +150,9 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
             p_node->AddNodeAttribute(0.0);
             p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 0.55;
             p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 0.5;
+
+            p_property->SetIntraCellularCalcium(2.0);
+
         }
         else if (cell_height < 10.0) // spinosal
         {

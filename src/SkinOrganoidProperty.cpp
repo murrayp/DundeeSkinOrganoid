@@ -3,7 +3,7 @@
 
 
 SkinOrganoidProperty::SkinOrganoidProperty()
-    : AbstractCellProperty(),mCellDifferentiatedType(0u)
+    : AbstractCellProperty(),mCellDifferentiatedType(0u),mIntraCellularCalcium(0.0),md_IntraCellularCalciumd_t(0.0)
 {
 }
 
@@ -29,6 +29,16 @@ double SkinOrganoidProperty::GetIntraCellularCalcium()
 void SkinOrganoidProperty::SetIntraCellularCalcium(double intraCellularCalcium)
 {
     mIntraCellularCalcium=intraCellularCalcium;
+}
+
+double SkinOrganoidProperty::GetD_IntraCellularCalciumD_t()
+{
+    return md_IntraCellularCalciumd_t;
+}
+
+void SkinOrganoidProperty::SetD_IntraCellularCalciumD_t(double d_intraCellularCalciumd_t)
+{
+    md_IntraCellularCalciumd_t=d_intraCellularCalciumd_t;
 }
 
 

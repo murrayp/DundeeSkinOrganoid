@@ -72,6 +72,23 @@ public:
      */
     SkinOrganoidLabelWriter();
 
+
+
+    /**
+        * Overridden GetVectorCellDataForVtkOutput() method.
+        *
+        * Get a c_vector associated with a cell. This method reduces duplication
+        * of code between the methods VisitCell() and AddVtkData().
+        *
+        * @param pCell a cell
+        * @param pCellPopulation a pointer to the cell population owning the cell
+        *
+        * @return the orientation of the capsule
+        */
+       c_vector<double, SPACE_DIM> GetVectorCellDataForVtkOutput(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation);
+
+
+
     /* Overridden GetCellDataForVtkOutput() method.
      *
      * Get a double associated with a cell. This method reduces duplication
@@ -82,7 +99,7 @@ public:
      *
      * @return data associated with the cell
      */
-    double GetCellDataForVtkOutput(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation);
+    //double GetCellDataForVtkOutput(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation);
 
     /**
      * Overridden VisitCell() method.

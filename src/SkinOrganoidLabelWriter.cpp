@@ -41,34 +41,64 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 SkinOrganoidLabelWriter<ELEMENT_DIM, SPACE_DIM>::SkinOrganoidLabelWriter()
     : AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>("results.vizdiffstates")
 {
-    this->mVtkCellDataName = "Differentation state";
+    //this->mVtkCellDataName = "Differentation state";
+    this->mVtkVectorCellDataName = "SkinOrganoidProperties";
+    this->mOutputScalarData = false;
+    this->mOutputVectorData = true;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double SkinOrganoidLabelWriter<ELEMENT_DIM, SPACE_DIM>::GetCellDataForVtkOutput(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
+c_vector<double, SPACE_DIM> SkinOrganoidLabelWriter<ELEMENT_DIM, SPACE_DIM>::GetVectorCellDataForVtkOutput(
+        CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
 {
-    double label = 0u;
+    assert(this->mOutputVectorData);
+
+    c_vector<double, SPACE_DIM> orientation;
+    //if (dynamic_cast<EllipsoidNodeBasedCellPopulation<SPACE_DIM>*>(pCellPopulation))
     if (pCell->HasCellProperty<SkinOrganoidProperty>())
     {
         CellPropertyCollection collection = pCell->rGetCellPropertyCollection().GetProperties<SkinOrganoidProperty>();
         boost::shared_ptr<SkinOrganoidProperty> p_label = boost::static_pointer_cast<SkinOrganoidProperty>(collection.GetProperty());
-        label = p_label->GetCellDifferentiatedType();
+        double label = double (p_label->GetCellDifferentiatedType());
+        double intracellular_calcium = p_label->GetIntraCellularCalcium();
+
+        orientation[0] = label;
+        orientation[1] = intracellular_calcium;
     }
-    return label;
+
+    return orientation;
 }
+
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//double SkinOrganoidLabelWriter<ELEMENT_DIM, SPACE_DIM>::GetCellDataForVtkOutput(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
+//{
+//    double label = 0u;
+//    if (pCell->HasCellProperty<SkinOrganoidProperty>())
+//    {
+//        CellPropertyCollection collection = pCell->rGetCellPropertyCollection().GetProperties<SkinOrganoidProperty>();
+//        boost::shared_ptr<SkinOrganoidProperty> p_label = boost::static_pointer_cast<SkinOrganoidProperty>(collection.GetProperty());
+//        label = p_label->GetCellDifferentiatedType();
+//    }
+//    return label;
+//}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void SkinOrganoidLabelWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
 {
     unsigned label = 0;
+    double intracellular_calcium = 0.0;
+
     if (pCell->HasCellProperty<SkinOrganoidProperty>())
     {
         CellPropertyCollection collection = pCell->rGetCellPropertyCollection().GetProperties<SkinOrganoidProperty>();
         boost::shared_ptr<SkinOrganoidProperty> p_label = boost::static_pointer_cast<SkinOrganoidProperty>(collection.GetProperty());
         label = p_label->GetCellDifferentiatedType();
+        intracellular_calcium = p_label->GetIntraCellularCalcium();
     }
 
-    *this->mpOutStream << " " << label;
+    *this->mpOutStream << label << " ";
+
+    *this->mpOutStream << intracellular_calcium << " ";
 
     unsigned location_index = pCellPopulation->GetLocationIndexUsingCell(pCell);
     *this->mpOutStream << " " << location_index;
