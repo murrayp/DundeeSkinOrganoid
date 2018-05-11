@@ -9,7 +9,7 @@ SutterlinEllipsoidAndBasementMembraneForce<DIM>::SutterlinEllipsoidAndBasementMe
      mDeltaOl(0.15),
      mDeltaOlMax(0.5),
      mDOlMin(0.1), // micrometres
-     mKPr(2.2e-4), // N m^{-1}
+     mKPr(2.2e-2), // N m^{-1}
      mDeltaAdh(1.3),
      mKAdh(2.2e-3), // N m^{-1}
 	 mKCBm(0.01)

@@ -68,87 +68,6 @@ private:
 
 public:
 
-    void TestSkinOrgnaoid3D()
-    {
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        MutableMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        //TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh", "StartMesh");
-        //mesh_writer.WriteFilesUsingMesh(mesh);
-
-        PRINT_VARIABLE(mesh.GetNumNodes());
-        // Create cells
-        //std::vector<CellPtr> cells;
-        //CellsGenerator<FixedG1GenerationalCellCycleModel, 3> cells_generator;
-        //cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
-
-
-        // Create cells
-      std::vector<CellPtr> cells;
-      MAKE_PTR(WildTypeCellMutationState, p_state);
-      MAKE_PTR(TransitCellProliferativeType, p_type);
-      for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-      {
-          UniformCellCycleModel* p_model = new UniformCellCycleModel();
-          p_model->SetMinCellCycleDuration(1.0);
-          p_model->SetMaxCellCycleDuration(1.6);
-          CellPtr p_cell(new Cell(p_state, p_model));
-          p_cell->SetCellProliferativeType(p_type);
-
-
-          MAKE_PTR(SkinOrganoidProperty, p_property);
-          p_property->SetCellDifferentiatedType(0u);
-          p_cell->AddCellProperty(p_property);
-
-
-          //double birth_time = -RandomNumberGenerator::Instance()->ranf();
-          p_cell->SetBirthTime(-0.9);
-
-
-
-          //p_label->SetCellDifferentiatedType(0u);
-          //p_cell>AddCellProperty(p_label);
-
-          cells.push_back(p_cell);
-      }
-
-      MeshBasedCellPopulation<3> cell_population(mesh, cells);
-      cell_population.SetWriteVtkAsPoints(true);
-      cell_population.AddCellWriter<SkinOrganoidLabelWriter>();
-      //cell_population.AddCellWriter<CellLabelWriter>();
-
-        OffLatticeSimulation<3> simulator(cell_population);
-        simulator.SetOutputDirectory("TestSkinOrganoid3D");
-
-        // Create a force law and pass it to the simulation
-        MAKE_PTR(GeneralisedLinearSpringForce<3>, p_linear_force);
-        p_linear_force->SetCutOffLength(1.5);
-        simulator.AddForce(p_linear_force);
-
-
-        //c_vector<double,3> point = zero_vector<double>(2);
-       //       c_vector<double,3> normal = zero_vector<double>(2);
-
-              MAKE_PTR(SkinOrganoidModifier<3>, p_modifier);
-              //p_modifier->SetOutputDirectory("TestS");
-              simulator.AddSimulationModifier(p_modifier);
-
-         //point(2)=-10.5;
-         //normal(2) = -1.0;
-         //MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc1, (&cell_population, point, normal)); // y>0
-         //simulator.AddCellPopulationBoundaryCondition(p_bc1);
-        // Test SetSamplingTimestepMultiple method
-        //TS_ASSERT_EQUALS(simulator.mSamplingTimestepMultiple, 1u);
-       //imulator.SetSamplingTimestepMultiple(2);
-        //TS_ASSERT_EQUALS(simulator.mSamplingTimestepMultiple, 2u);
-
-        // Uncommenting this line calls an error in accessing nodes in the vertex elements #
-        //cell_population.AddPopulationWriter<VoronoiDataWriter>();
-
-        simulator.SetEndTime(0.21);
-        simulator.Solve();
-    }
 
     void TestSutterlinWithCellDifferentiation()
    {
@@ -158,7 +77,7 @@ public:
 	   std::vector<Node<3>*> nodes;
 	   unsigned index = 0;
 	   unsigned cells_across = 5;
-	   double scaling = 1.0;
+	   double scaling = 3.0;
 	   for (unsigned i=0; i<cells_across; i++)
 	   {
 		   for (unsigned j=0; j<cells_across; j++)
@@ -178,8 +97,8 @@ public:
 	   {
 		   mesh.GetNode(i)->AddNodeAttribute(0.0);
 		   mesh.GetNode(0u)->rGetNodeAttributes().resize(2);
-		   mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 0.55; // micrometres
-		   mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 0.5; // micrometres
+		   mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 5.0; // micrometres
+		   mesh.GetNode(i)->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 5.0; // micrometres
 	   }
 
 	   // Create cells
@@ -223,7 +142,7 @@ public:
 	   OffLatticeSimulation<3> simulator(cell_population);
 	   simulator.SetOutputDirectory("TestSutterlinEllipsoidCellsahh");
 	   simulator.SetSamplingTimestepMultiple(12);
-	   simulator.SetEndTime(20.0);
+	   simulator.SetEndTime(75.0);
 
 	   // Pass force law to the simulation
 	   MAKE_PTR(SutterlinEllipsoidAndBasementMembraneForce<3>, p_force);
@@ -232,16 +151,18 @@ public:
 	   MAKE_PTR(SkinOrganoidModifier<3>, p_modifier2);
 	   simulator.AddSimulationModifier(p_modifier2);
 
+
+
 	   c_vector<double,3> point1 = zero_vector<double>(3);
 	   c_vector<double,3> normal1 = zero_vector<double>(3);
-	   point1(2)=-0.5;
+	   point1(2)=-10.05;
 	   normal1(2) = -1.0;
 	   MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc1, (&cell_population, point1, normal1)); // y>0
 	   simulator.AddCellPopulationBoundaryCondition(p_bc1);
-
+/*
 	   c_vector<double,3> point2 = zero_vector<double>(3);
 	   c_vector<double,3> normal2 = zero_vector<double>(3);
-	   point2(0)=-0.5;
+	   point2(0)=-0.05;
 	   normal2(0) = -1.0;
 
 	   MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc2, (&cell_population, point2, normal2)); // y>0
@@ -249,11 +170,13 @@ public:
 
 	   c_vector<double,3> point3 = zero_vector<double>(3);
 	   c_vector<double,3> normal3 = zero_vector<double>(3);
-	   point3(0)=5.5;
+	   point3(0)=40.0;
 	   normal3(0) = 1.0;
 
 	   MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc3, (&cell_population, point3, normal3)); // y>0
 	   simulator.AddCellPopulationBoundaryCondition(p_bc3);
+
+	   */
 	   /*
 	   c_vector<double,3> point4 = zero_vector<double>(3);
 	  c_vector<double,3> normal4 = zero_vector<double>(3);

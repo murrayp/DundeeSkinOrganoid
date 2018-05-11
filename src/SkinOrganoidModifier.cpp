@@ -139,7 +139,7 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
 
         EllipsoidNodeBasedCellPopulation<DIM>* p_ellipsoid_pop=(static_cast<EllipsoidNodeBasedCellPopulation<DIM>*>(&rCellPopulation));
 
-        if (cell_height <2.0) //basal
+        if (cell_height <14.0) //basal
         {
             p_property->SetCellDifferentiatedType(0u);
 
@@ -148,13 +148,13 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
             cell_iter->SetCellProliferativeType(p_stem_type);
             Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
             p_node->AddNodeAttribute(0.0);
-            p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 0.55;
-            p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 0.5;
+            p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 5.0;
+            p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 5.0;
 
             p_property->SetIntraCellularCalcium(2.0);
 
         }
-        else if (cell_height < 10.0) // spinosal
+        else if (cell_height < 80.0) // spinosal
         {
             p_property->SetCellDifferentiatedType(1u);
             //if (cell_iter->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
@@ -174,14 +174,14 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
             //double semi_major = p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS];
             //double semi_minor = p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS];
 
-            double semi_minor=0.3;
-            double semi_major=0.8;
+            double semi_minor=3.0;
+            double semi_major=7.0;
             p_node->AddNodeAttribute(0.0);
             p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = semi_major;
             p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = semi_minor;
 
         }
-        else if (cell_height < 14.0) // granular
+        else if (cell_height < 105.0) // granular
         {
              p_property->SetCellDifferentiatedType(2u);
         }
