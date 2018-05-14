@@ -150,7 +150,13 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
 
         EllipsoidNodeBasedCellPopulation<DIM>* p_ellipsoid_pop=(static_cast<EllipsoidNodeBasedCellPopulation<DIM>*>(&rCellPopulation));
 
-        if (cell_height <1.0*mBasalCellSemiMajorAndMinorAxis(1)) //basal
+
+        double basal_height_threshold= 1.0*mBasalCellSemiMajorAndMinorAxis(1);
+        double spinosal_height_threshold= basal_height_threshold+2.0*5.0*mSpinosalCellSemiMajorAndMinorAxis(1);
+        double granular_height_threshold= spinosal_height_threshold+ 2.0*5.0*mGranularCellSemiMajorAndMinorAxis(1) ;
+
+
+        if (cell_height <basal_height_threshold) //basal
         {
             p_property->SetCellDifferentiatedType(0u);
 
@@ -165,31 +171,31 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
             p_property->SetIntraCellularCalcium(2.0);
 
         }
-        else if (cell_height < 1.0*mBasalCellSemiMajorAndMinorAxis(1)+2.0*5.0*mSpinosalCellSemiMajorAndMinorAxis(1)) // spinosal
+        else if (cell_height < spinosal_height_threshold ) // spinosal
         {
             p_property->SetCellDifferentiatedType(1u);
-            //if (cell_iter->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
-            {
+
                 boost::shared_ptr<AbstractCellProperty> p_diff_type =
                 cell_iter->rGetCellPropertyCollection().GetCellPropertyRegistry()->template Get<DifferentiatedCellProliferativeType>();
                  cell_iter->SetCellProliferativeType(p_diff_type);
-            }
 
-            // mess about with semi major axis
 
-            //EllipsoidNodeBasedCellPopulation<DIM>& rellipsoid_pop=(dynamic_cast<EllipsoidNodeBasedCellPopulation<DIM>&>(rCellPopulation));
 
             Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
 
-
-//p_node->AddNodeAttribute(0.0);
             p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = mSpinosalCellSemiMajorAndMinorAxis(0);
             p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = mSpinosalCellSemiMajorAndMinorAxis(1);
 
         }
-        else if (cell_height < 1.0*mBasalCellSemiMajorAndMinorAxis(1)+2.0*5.0*mSpinosalCellSemiMajorAndMinorAxis(1) + 2.0*10.0*mGranularCellSemiMajorAndMinorAxis(1) ) // granular
+        else if (cell_height < granular_height_thresholds) // granular
         {
              p_property->SetCellDifferentiatedType(2u);
+
+             boost::shared_ptr<AbstractCellProperty> p_diff_type =
+                            cell_iter->rGetCellPropertyCollection().GetCellPropertyRegistry()->template Get<DifferentiatedCellProliferativeType>();
+                             cell_iter->SetCellProliferativeType(p_diff_type);
+
+
              Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
 
              //p_node->AddNodeAttribute(0.0);
@@ -200,6 +206,7 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
         {
             p_property->SetCellDifferentiatedType(3u);
         }
+
     }
 }
 
