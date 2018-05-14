@@ -79,7 +79,7 @@ std::pair<c_vector<double, SPACE_DIM>, c_vector<double, SPACE_DIM> > SkinOrganoi
              * the poles. See #2230.
              */
             //double u = RandomNumberGenerator::Instance()->ranf();
-            double v = 0.05+0.1*RandomNumberGenerator::Instance()->ranf();
+            double v = 0.1+0.05*RandomNumberGenerator::Instance()->ranf();
 
             //double random_azimuth_angle = 2*M_PI*u;
             //double random_zenith_angle = std::acos(2*v - 1);

@@ -44,6 +44,8 @@ CellPtr EllipsoidNodeBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, CellPtr
     Node<DIM>* p_new_node = this->GetNodeCorrespondingToCell(pNewCellTemp);// new Node<DIM>(this->GetNumNodes(), daughter_position, false); // never on boundary
 
     p_new_node->AddNodeAttribute(0.0);
+    p_new_node->rGetNodeAttributes().resize(2);
+
 
     double semi_major = (this->GetNodeCorrespondingToCell(pParentCell))->rGetNodeAttributes()[NA_SEMIMAJORAXIS];
     double semi_minor = (this->GetNodeCorrespondingToCell(pParentCell))->rGetNodeAttributes()[NA_SEMIMINORAXIS];
@@ -61,8 +63,7 @@ CellPtr EllipsoidNodeBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, CellPtr
     }
     boost::shared_ptr<SkinOrganoidProperty> p_parent_property = boost::static_pointer_cast<SkinOrganoidProperty>(collection.GetProperty());
     unsigned parent_data = p_parent_property->GetCellDifferentiatedType();
-
-
+    double parent_calcium=p_parent_property->GetIntraCellularCalcium();
 
     // remove copied daughter cell property and create a new cell property
     pNewCellTemp->template RemoveCellProperty<SkinOrganoidProperty>();
@@ -70,6 +71,7 @@ CellPtr EllipsoidNodeBasedCellPopulation<DIM>::AddCell(CellPtr pNewCell, CellPtr
 
     MAKE_PTR(SkinOrganoidProperty, p_property);
     p_property->SetCellDifferentiatedType(parent_data);
+    p_property->SetIntraCellularCalcium(parent_calcium);
 
     pNewCellTemp->AddCellProperty(p_property);
 

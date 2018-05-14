@@ -9,9 +9,9 @@ template<unsigned DIM>
 SutterlinEllipsoidAndBasementMembraneForce<DIM>::SutterlinEllipsoidAndBasementMembraneForce()
    : AbstractForce<DIM>(),
      mDeltaOl(1.0),
-     mDeltaOlMax(0.6),
+     mDeltaOlMax(0.3),
      mDOlMin(0.0), // micrometres
-     mKPr(2.2e-0), // N m^{-1}
+     mKPr(5.2e-0), // N m^{-1}
      mDeltaAdh(0.0),
      mKAdh(0.0), // N m^{-1}
 	 mKCBm(0.01)
@@ -142,6 +142,10 @@ c_vector<double, DIM> SutterlinEllipsoidAndBasementMembraneForce<DIM>::Calculate
 
     unit_vector /= distance_between_nodes;
 
+
+
+
+
     double temp_a = unit_vector(0)*unit_vector(0)/(pow(semi_major_axis_a,2));
     double temp_b = unit_vector(0)*unit_vector(0)/(pow(semi_major_axis_b,2));
     if (DIM > 1)
@@ -154,6 +158,7 @@ c_vector<double, DIM> SutterlinEllipsoidAndBasementMembraneForce<DIM>::Calculate
     	temp_a += unit_vector(2)*unit_vector(2)/(pow(semi_minor_axis_a,2));
     	temp_b += unit_vector(2)*unit_vector(2)/(pow(semi_minor_axis_b,2));
     }
+
 
     double d_opt = norm_2(unit_vector/temp_a) + norm_2(-unit_vector/temp_b);
     double d_hat_opt = mDeltaOl*d_opt;
@@ -169,7 +174,7 @@ c_vector<double, DIM> SutterlinEllipsoidAndBasementMembraneForce<DIM>::Calculate
     }
     else if (d_ol >= d_ol_max)
     {
-    	F_pr = mKPr*d_ol_max*exp(d_ol/d_ol_max - 1);
+    	F_pr = mKPr*d_ol_max*exp(0.001*(d_ol/d_ol_max - 1));
     }
     //PRINT_VARIABLE(d_ol);
     //PRINT_VARIABLE(F_pr);

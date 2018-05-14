@@ -20,8 +20,8 @@ SkinOrganoidModifier<DIM>::SkinOrganoidModifier()
 	mBasalCellSemiMajorAndMinorAxis(0)=0.5;
 	mBasalCellSemiMajorAndMinorAxis(1)=0.5;
 
-	mSpinosalCellSemiMajorAndMinorAxis(0)=0.5;
-	mSpinosalCellSemiMajorAndMinorAxis(1)=0.5;
+	mSpinosalCellSemiMajorAndMinorAxis(0)=0.6;
+	mSpinosalCellSemiMajorAndMinorAxis(1)=0.4;
 
 	mGranularCellSemiMajorAndMinorAxis(0)=0.8;
 	mGranularCellSemiMajorAndMinorAxis(1)=0.3;
@@ -158,14 +158,14 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
             //cell_iter->rGetCellPropertyCollection().GetCellPropertyRegistry()->template Get<StemCellProliferativeType>();
             //cell_iter->SetCellProliferativeType(p_stem_type);
             Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
-            p_node->AddNodeAttribute(0.0);
+            //p_node->AddNodeAttribute(0.0);
             p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = mBasalCellSemiMajorAndMinorAxis(0);
             p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = mBasalCellSemiMajorAndMinorAxis(1);
 
             p_property->SetIntraCellularCalcium(2.0);
 
         }
-        else if (cell_height < 2.0*mBasalCellSemiMajorAndMinorAxis(1)+2.0*10.0*mSpinosalCellSemiMajorAndMinorAxis(1)) // spinosal
+        else if (cell_height < 2.0*mBasalCellSemiMajorAndMinorAxis(1)+2.0*5.0*mSpinosalCellSemiMajorAndMinorAxis(1)) // spinosal
         {
             p_property->SetCellDifferentiatedType(1u);
             //if (cell_iter->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
@@ -185,12 +185,12 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
             //double semi_major = p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS];
             //double semi_minor = p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS];
 
-            p_node->AddNodeAttribute(0.0);
+//p_node->AddNodeAttribute(0.0);
             p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = mSpinosalCellSemiMajorAndMinorAxis(0);
             p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = mSpinosalCellSemiMajorAndMinorAxis(1);
 
         }
-        else if (cell_height < 2.0*mBasalCellSemiMajorAndMinorAxis(1)+2.0*10.0*mSpinosalCellSemiMajorAndMinorAxis(1) + 2.0*10.0*mGranularCellSemiMajorAndMinorAxis(1) ) // granular
+        else if (cell_height < 2.0*mBasalCellSemiMajorAndMinorAxis(1)+2.0*5.0*mSpinosalCellSemiMajorAndMinorAxis(1) + 2.0*10.0*mGranularCellSemiMajorAndMinorAxis(1) ) // granular
         {
              p_property->SetCellDifferentiatedType(2u);
              Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
