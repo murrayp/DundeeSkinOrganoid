@@ -174,7 +174,7 @@ c_vector<double, DIM> SutterlinEllipsoidAndBasementMembraneForce<DIM>::Calculate
     }
     else if (d_ol >= d_ol_max)
     {
-    	F_pr = mKPr*d_ol_max*exp(0.001*(d_ol/d_ol_max - 1));
+    	F_pr = mKPr*d_ol_max*exp(0.1*(d_ol/d_ol_max - 1));
     }
     //PRINT_VARIABLE(d_ol);
     //PRINT_VARIABLE(F_pr);

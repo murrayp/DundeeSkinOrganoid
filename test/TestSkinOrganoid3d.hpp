@@ -92,7 +92,7 @@ public:
            // Create a mesh
            std::vector<Node<3>*> nodes;
            unsigned index = 0;
-           unsigned cells_across = 2;
+           unsigned cells_across = 5;
            unsigned cells_up=1;
            double scaling = basalCellSemiMajorAndMinorAxis(0)*1.0;
            for (unsigned i=0; i<cells_across; i++)
@@ -207,7 +207,7 @@ public:
 
            c_vector<double,3> point3 = zero_vector<double>(3);
            c_vector<double,3> normal3 = zero_vector<double>(3);
-           point3(0)=0.55;
+           point3(0)=scaling*cells_across;
            normal3(0) = 1.0;
            MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc3, (&cell_population, point3, normal3)); // y>0
            p_bc2->SetUseJiggledNodesOnPlane(true);
@@ -225,7 +225,7 @@ public:
 
           c_vector<double,3> point5 = zero_vector<double>(3);
           c_vector<double,3> normal5 = zero_vector<double>(3);
-          point5(1)=0.75;
+          point5(1)=scaling*cells_across;
           normal5(1) = 1.0;
 
           MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc5, (&cell_population, point5, normal5)); // y>0

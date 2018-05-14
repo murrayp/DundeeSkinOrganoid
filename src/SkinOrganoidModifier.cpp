@@ -23,8 +23,8 @@ SkinOrganoidModifier<DIM>::SkinOrganoidModifier()
 	mSpinosalCellSemiMajorAndMinorAxis(0)=0.6;
 	mSpinosalCellSemiMajorAndMinorAxis(1)=0.4;
 
-	mGranularCellSemiMajorAndMinorAxis(0)=0.8;
-	mGranularCellSemiMajorAndMinorAxis(1)=0.3;
+	mGranularCellSemiMajorAndMinorAxis(0)=0.7;
+	mGranularCellSemiMajorAndMinorAxis(1)=0.2;
 
 
 
@@ -99,19 +99,23 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
 
 
                double cell_wise_contribution;
-               double transport_constant=1.0;
-
+               double transport_constant=10.1;
 
 
                cell_wise_contribution = transport_constant*(intracellular_calcium_neighbour - intracellular_calcium);
 
 
-               d_intraCellularCalcium_dt+=cell_wise_contribution;
+
+               d_intraCellularCalcium_dt+=cell_wise_contribution ;
 
            }
 
 
        }
+
+       double intracellular_calcium_deg_rate=0.05;
+       double reaction_term = -intracellular_calcium*intracellular_calcium_deg_rate;
+       d_intraCellularCalcium_dt+=reaction_term;
        p_property->SetD_IntraCellularCalciumD_t(d_intraCellularCalcium_dt);
 
 
@@ -137,59 +141,57 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
 
 	        double intracellular_calcium = p_property->GetIntraCellularCalcium();
             double d_intraCellularCalcium_dt = p_property->GetD_IntraCellularCalciumD_t();
+            double new_intracellular_calcium = intracellular_calcium + d_intraCellularCalcium_dt*dt;
+            p_property->SetIntraCellularCalcium(new_intracellular_calcium);
+
+	        // First  model for assigning cell types based on height from basal layer
+	        c_vector<double, DIM> cell_location = rCellPopulation.GetLocationOfCellCentre(*cell_iter);
+
+	        double cell_height = cell_location(2);
+
+	        EllipsoidNodeBasedCellPopulation<DIM>* p_ellipsoid_pop=(static_cast<EllipsoidNodeBasedCellPopulation<DIM>*>(&rCellPopulation));
 
 
-	        double new_intracellular_calcium = intracellular_calcium + d_intraCellularCalcium_dt*dt;
-
-        p_property->SetIntraCellularCalcium(new_intracellular_calcium);
-
-        // First  model for assigning cell types based on height from basal layer
-        c_vector<double, DIM> cell_location = rCellPopulation.GetLocationOfCellCentre(*cell_iter);
-
-        double cell_height = cell_location(2);
-
-        EllipsoidNodeBasedCellPopulation<DIM>* p_ellipsoid_pop=(static_cast<EllipsoidNodeBasedCellPopulation<DIM>*>(&rCellPopulation));
+	        double basal_height_threshold= 1.0*mBasalCellSemiMajorAndMinorAxis(1);
+	        double spinosal_height_threshold= basal_height_threshold+2.0*3.0*mSpinosalCellSemiMajorAndMinorAxis(1);
+	        double granular_height_threshold= spinosal_height_threshold+ 2.0*mGranularCellSemiMajorAndMinorAxis(1) ;
 
 
-        double basal_height_threshold= 1.0*mBasalCellSemiMajorAndMinorAxis(1);
-        double spinosal_height_threshold= basal_height_threshold+2.0*5.0*mSpinosalCellSemiMajorAndMinorAxis(1);
-        double granular_height_threshold= spinosal_height_threshold+ 2.0*5.0*mGranularCellSemiMajorAndMinorAxis(1) ;
+	        if (cell_height <basal_height_threshold) //basal
+	        {
+	        	p_property->SetCellDifferentiatedType(0u);
 
+	        	//boost::shared_ptr<AbstractCellProperty> p_stem_type =
+	        	//cell_iter->rGetCellPropertyCollection().GetCellPropertyRegistry()->template Get<StemCellProliferativeType>();
+	        	//cell_iter->SetCellProliferativeType(p_stem_type);
+	        	Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
+	        	p_node->AddNodeAttribute(0.0);
+	        	p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = mBasalCellSemiMajorAndMinorAxis(0);
+	        	p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = mBasalCellSemiMajorAndMinorAxis(1);
 
-        if (cell_height <basal_height_threshold) //basal
-        {
-            p_property->SetCellDifferentiatedType(0u);
+	        	p_property->SetIntraCellularCalcium(2.0);
 
-            //boost::shared_ptr<AbstractCellProperty> p_stem_type =
-            //cell_iter->rGetCellPropertyCollection().GetCellPropertyRegistry()->template Get<StemCellProliferativeType>();
-            //cell_iter->SetCellProliferativeType(p_stem_type);
-            Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
-            //p_node->AddNodeAttribute(0.0);
-            p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = mBasalCellSemiMajorAndMinorAxis(0);
-            p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = mBasalCellSemiMajorAndMinorAxis(1);
-
-            p_property->SetIntraCellularCalcium(2.0);
-
-        }
-        else if (cell_height < spinosal_height_threshold ) // spinosal
-        {
-            p_property->SetCellDifferentiatedType(1u);
+	        }
+	        else if (cell_height >basal_height_threshold && cell_height < spinosal_height_threshold && p_property->GetCellDifferentiatedType()==0u ) // spinosal
+	        {
+	        	p_property->SetCellDifferentiatedType(1u);
 
                 boost::shared_ptr<AbstractCellProperty> p_diff_type =
                 cell_iter->rGetCellPropertyCollection().GetCellPropertyRegistry()->template Get<DifferentiatedCellProliferativeType>();
                  cell_iter->SetCellProliferativeType(p_diff_type);
+                 cell_iter->SetBirthTime(1e4);
 
 
+                 Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
+                 p_node->AddNodeAttribute(0.0);
 
-            Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
-
-            p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = mSpinosalCellSemiMajorAndMinorAxis(0);
-            p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = mSpinosalCellSemiMajorAndMinorAxis(1);
+                 p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = mSpinosalCellSemiMajorAndMinorAxis(0);
+                 p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = mSpinosalCellSemiMajorAndMinorAxis(1);
 
         }
-        else if (cell_height < granular_height_thresholds) // granular
+        else if (cell_height> spinosal_height_threshold && cell_height < granular_height_threshold && p_property->GetCellDifferentiatedType()==1u) // granular
         {
-             p_property->SetCellDifferentiatedType(2u);
+             	 p_property->SetCellDifferentiatedType(2u);
 
              boost::shared_ptr<AbstractCellProperty> p_diff_type =
                             cell_iter->rGetCellPropertyCollection().GetCellPropertyRegistry()->template Get<DifferentiatedCellProliferativeType>();
@@ -198,13 +200,15 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
 
              Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
 
-             //p_node->AddNodeAttribute(0.0);
+             p_node->AddNodeAttribute(0.0);
              p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = mGranularCellSemiMajorAndMinorAxis(0);
              p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = mGranularCellSemiMajorAndMinorAxis(1);
         }
-        else  // Cornified
+        else if (cell_height > granular_height_threshold&&p_property->GetCellDifferentiatedType()==2u)  // Cornified
         {
             p_property->SetCellDifferentiatedType(3u);
+        	p_property->SetIntraCellularCalcium(0.0);
+
         }
 
     }
