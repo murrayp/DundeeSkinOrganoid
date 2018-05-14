@@ -2,16 +2,18 @@
 #include "SutterlinEllipsoidAndBasementMembraneForce.hpp"
 #include "EllipsoidNodeBasedCellPopulation.hpp"
 #include "EllipsoidNodeAttributes.hpp"
+#include "Debug.hpp"
+
 
 template<unsigned DIM>
 SutterlinEllipsoidAndBasementMembraneForce<DIM>::SutterlinEllipsoidAndBasementMembraneForce()
    : AbstractForce<DIM>(),
-     mDeltaOl(0.15),
-     mDeltaOlMax(0.5),
-     mDOlMin(0.1), // micrometres
-     mKPr(2.2e-2), // N m^{-1}
-     mDeltaAdh(1.3),
-     mKAdh(2.2e-3), // N m^{-1}
+     mDeltaOl(1.0),
+     mDeltaOlMax(0.6),
+     mDOlMin(0.0), // micrometres
+     mKPr(2.2e-0), // N m^{-1}
+     mDeltaAdh(0.0),
+     mKAdh(0.0), // N m^{-1}
 	 mKCBm(0.01)
 {
 	///\todo work out if any of these default parameter values need to be rescaled
@@ -169,6 +171,8 @@ c_vector<double, DIM> SutterlinEllipsoidAndBasementMembraneForce<DIM>::Calculate
     {
     	F_pr = mKPr*d_ol_max*exp(d_ol/d_ol_max - 1);
     }
+    //PRINT_VARIABLE(d_ol);
+    //PRINT_VARIABLE(F_pr);
 
     // Compute adhesion force magnitude
     double d_gap = distance_between_nodes - d_opt;

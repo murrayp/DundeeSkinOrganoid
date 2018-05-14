@@ -17,6 +17,17 @@ template<unsigned DIM>
 SkinOrganoidModifier<DIM>::SkinOrganoidModifier()
     : AbstractCellBasedSimulationModifier<DIM>()
 {
+	mBasalCellSemiMajorAndMinorAxis(0)=0.5;
+	mBasalCellSemiMajorAndMinorAxis(1)=0.5;
+
+	mSpinosalCellSemiMajorAndMinorAxis(0)=0.5;
+	mSpinosalCellSemiMajorAndMinorAxis(1)=0.5;
+
+	mGranularCellSemiMajorAndMinorAxis(0)=0.8;
+	mGranularCellSemiMajorAndMinorAxis(1)=0.3;
+
+
+
 }
 
 template<unsigned DIM>
@@ -139,22 +150,22 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
 
         EllipsoidNodeBasedCellPopulation<DIM>* p_ellipsoid_pop=(static_cast<EllipsoidNodeBasedCellPopulation<DIM>*>(&rCellPopulation));
 
-        if (cell_height <14.0) //basal
+        if (cell_height <1.0*mBasalCellSemiMajorAndMinorAxis(1)) //basal
         {
             p_property->SetCellDifferentiatedType(0u);
 
-            boost::shared_ptr<AbstractCellProperty> p_stem_type =
-            cell_iter->rGetCellPropertyCollection().GetCellPropertyRegistry()->template Get<StemCellProliferativeType>();
-            cell_iter->SetCellProliferativeType(p_stem_type);
+            //boost::shared_ptr<AbstractCellProperty> p_stem_type =
+            //cell_iter->rGetCellPropertyCollection().GetCellPropertyRegistry()->template Get<StemCellProliferativeType>();
+            //cell_iter->SetCellProliferativeType(p_stem_type);
             Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
             p_node->AddNodeAttribute(0.0);
-            p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 5.0;
-            p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = 5.0;
+            p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = mBasalCellSemiMajorAndMinorAxis(0);
+            p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = mBasalCellSemiMajorAndMinorAxis(1);
 
             p_property->SetIntraCellularCalcium(2.0);
 
         }
-        else if (cell_height < 80.0) // spinosal
+        else if (cell_height < 2.0*mBasalCellSemiMajorAndMinorAxis(1)+2.0*10.0*mSpinosalCellSemiMajorAndMinorAxis(1)) // spinosal
         {
             p_property->SetCellDifferentiatedType(1u);
             //if (cell_iter->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
@@ -174,16 +185,19 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
             //double semi_major = p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS];
             //double semi_minor = p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS];
 
-            double semi_minor=3.0;
-            double semi_major=7.0;
             p_node->AddNodeAttribute(0.0);
-            p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = semi_major;
-            p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = semi_minor;
+            p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = mSpinosalCellSemiMajorAndMinorAxis(0);
+            p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = mSpinosalCellSemiMajorAndMinorAxis(1);
 
         }
-        else if (cell_height < 105.0) // granular
+        else if (cell_height < 2.0*mBasalCellSemiMajorAndMinorAxis(1)+2.0*10.0*mSpinosalCellSemiMajorAndMinorAxis(1) + 2.0*10.0*mGranularCellSemiMajorAndMinorAxis(1) ) // granular
         {
              p_property->SetCellDifferentiatedType(2u);
+             Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
+
+             p_node->AddNodeAttribute(0.0);
+             p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = mGranularCellSemiMajorAndMinorAxis(0);
+             p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = mGranularCellSemiMajorAndMinorAxis(1);
         }
         else  // Cornified
         {
@@ -191,6 +205,46 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
         }
     }
 }
+
+
+template<unsigned DIM>
+void SkinOrganoidModifier<DIM>::SetBasalCellSemiMajorAndMinorAxis(c_vector<double, 2> basalCellSemiMajorAndMinorAxis)
+{
+	mBasalCellSemiMajorAndMinorAxis=basalCellSemiMajorAndMinorAxis;
+}
+
+template<unsigned DIM>
+void SkinOrganoidModifier<DIM>::SetSpinosalCellSemiMajorAndMinorAxis(c_vector<double, 2> spinosalCellSemiMajorAndMinorAxis)
+{
+	mSpinosalCellSemiMajorAndMinorAxis=spinosalCellSemiMajorAndMinorAxis;
+}
+
+template<unsigned DIM>
+void SkinOrganoidModifier<DIM>::SetGranularCellSemiMajorAndMinorAxis(c_vector<double, 2> granularCellSemiMajorAndMinorAxis)
+{
+	mGranularCellSemiMajorAndMinorAxis=granularCellSemiMajorAndMinorAxis;
+}
+
+template<unsigned DIM>
+c_vector<double, 2> SkinOrganoidModifier<DIM>::GetBasalCellSemiMajorAndMinorAxis()
+{
+	return mBasalCellSemiMajorAndMinorAxis;
+}
+
+template<unsigned DIM>
+c_vector<double, 2> SkinOrganoidModifier<DIM>::GetSpinosalCellSemiMajorAndMinorAxis()
+{
+	return mSpinosalCellSemiMajorAndMinorAxis;
+}
+
+template<unsigned DIM>
+c_vector<double, 2> SkinOrganoidModifier<DIM>::GetGranularCellSemiMajorAndMinorAxis()
+{
+	return mGranularCellSemiMajorAndMinorAxis;
+}
+
+
+
     
 template<unsigned DIM>
 void SkinOrganoidModifier<DIM>::OutputSimulationModifierParameters(out_stream& rParamsFile)

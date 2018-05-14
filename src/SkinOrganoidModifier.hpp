@@ -16,6 +16,15 @@ class SkinOrganoidModifier : public AbstractCellBasedSimulationModifier<DIM,DIM>
 private:
 
     ///\todo Implement archiving
+	c_vector<double, 2> mBasalCellSemiMajorAndMinorAxis;
+	c_vector<double, 2> mSpinosalCellSemiMajorAndMinorAxis;
+	c_vector<double, 2> mGranularCellSemiMajorAndMinorAxis;
+
+
+
+
+
+
 
 
 public:
@@ -67,6 +76,13 @@ public:
      */
     void OutputSimulationModifierParameters(out_stream& rParamsFile);
 
+    void SetBasalCellSemiMajorAndMinorAxis(c_vector<double, 2>);
+    void SetSpinosalCellSemiMajorAndMinorAxis(c_vector<double, 2>);
+    void SetGranularCellSemiMajorAndMinorAxis(c_vector<double, 2>);
+
+    c_vector<double, 2> GetBasalCellSemiMajorAndMinorAxis();
+    c_vector<double, 2> GetSpinosalCellSemiMajorAndMinorAxis();
+    c_vector<double, 2> GetGranularCellSemiMajorAndMinorAxis();
 
 
 };
