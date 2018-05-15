@@ -29,6 +29,8 @@
 #include "StemCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
 #include "SkinOrganoidCentreBasedDivisionRule.hpp"
+#include "PlaneBasedCellKiller.hpp"
+
 
 
 
@@ -176,7 +178,7 @@ public:
            simulator.SetSamplingTimestepMultiple(10);
            simulator.SetDt(1.0/120.0);
 
-           simulator.SetEndTime(70.0);
+           simulator.SetEndTime(100.0);
 
            // Pass force law to the simulation
            MAKE_PTR(SutterlinEllipsoidAndBasementMembraneForce<3>, p_force);
@@ -185,8 +187,9 @@ public:
            MAKE_PTR(SkinOrganoidModifier<3>, p_modifier2);
            simulator.AddSimulationModifier(p_modifier2);
 
-
-
+           // Kill all cells moving past z=1;
+                   MAKE_PTR_ARGS(PlaneBasedCellKiller<3>, p_cell_killer,(&cell_population, 4.0*unit_vector<double>(3,2), unit_vector<double>(3,2)));
+                   simulator.AddCellKiller(p_cell_killer);
            c_vector<double,3> point1 = zero_vector<double>(3);
            c_vector<double,3> normal1 = zero_vector<double>(3);
            point1(2)=-0.05;
