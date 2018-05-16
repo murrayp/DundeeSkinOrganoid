@@ -20,11 +20,11 @@ SkinOrganoidModifier<DIM>::SkinOrganoidModifier()
 	mBasalCellSemiMajorAndMinorAxis(0)=0.5;
 	mBasalCellSemiMajorAndMinorAxis(1)=0.5;
 
-	mSpinosalCellSemiMajorAndMinorAxis(0)=0.6;
-	mSpinosalCellSemiMajorAndMinorAxis(1)=0.4;
+	mSpinosalCellSemiMajorAndMinorAxis(0)=0.7;
+	mSpinosalCellSemiMajorAndMinorAxis(1)=0.3;
 
-	mGranularCellSemiMajorAndMinorAxis(0)=0.7;
-	mGranularCellSemiMajorAndMinorAxis(1)=0.2;
+	mGranularCellSemiMajorAndMinorAxis(0)=0.8;
+	mGranularCellSemiMajorAndMinorAxis(1)=0.1;
 
 
 
@@ -157,7 +157,7 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
 	        double granular_height_threshold= spinosal_height_threshold+ 2.0*mGranularCellSemiMajorAndMinorAxis(1) ;
 
 
-	        if (cell_height <basal_height_threshold) //basal
+	        if (cell_height <basal_height_threshold &&p_property->GetCellDifferentiatedType()==0u) //basal
 	        {
 	        	p_property->SetCellDifferentiatedType(0u);
 

@@ -9,7 +9,7 @@ template<unsigned DIM>
 SutterlinEllipsoidAndBasementMembraneForce<DIM>::SutterlinEllipsoidAndBasementMembraneForce()
    : AbstractForce<DIM>(),
      mDeltaOl(1.0),
-     mDeltaOlMax(0.3),
+     mDeltaOlMax(0.2),
      mDOlMin(0.0), // micrometres
      mKPr(5.2e-0), // N m^{-1}
      mDeltaAdh(0.0),
@@ -174,7 +174,7 @@ c_vector<double, DIM> SutterlinEllipsoidAndBasementMembraneForce<DIM>::Calculate
     }
     else if (d_ol >= d_ol_max)
     {
-    	F_pr = mKPr*d_ol_max*exp(0.1*(d_ol/d_ol_max - 1));
+    	F_pr = mKPr*d_ol_max*exp(1.0*(d_ol/d_ol_max - 1));
     }
     //PRINT_VARIABLE(d_ol);
     //PRINT_VARIABLE(F_pr);

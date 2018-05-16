@@ -30,6 +30,8 @@
 #include "DifferentiatedCellProliferativeType.hpp"
 #include "SkinOrganoidCentreBasedDivisionRule.hpp"
 #include "PlaneBasedCellKiller.hpp"
+#include "DiffusionForce.hpp"
+
 
 
 
@@ -183,6 +185,10 @@ public:
            // Pass force law to the simulation
            MAKE_PTR(SutterlinEllipsoidAndBasementMembraneForce<3>, p_force);
            simulator.AddForce(p_force);
+
+           MAKE_PTR(DiffusionForce<3>, p_force_diff);
+           p_force_diff->SetAbsoluteTemperature(0.150);
+                      simulator.AddForce(p_force_diff);
 
            MAKE_PTR(SkinOrganoidModifier<3>, p_modifier2);
            simulator.AddSimulationModifier(p_modifier2);
