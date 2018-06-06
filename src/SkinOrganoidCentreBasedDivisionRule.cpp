@@ -84,8 +84,8 @@ std::pair<c_vector<double, SPACE_DIM>, c_vector<double, SPACE_DIM> > SkinOrganoi
             double random_azimuth_angle = 2*M_PI*u;
             double random_zenith_angle = std::acos(2*v - 1);
 
-            random_vector(0) = 0.05*cos(random_azimuth_angle)*sin(random_zenith_angle);
-            random_vector(1) = 0.05*sin(random_azimuth_angle)*sin(random_zenith_angle);
+            random_vector(0) = 0.25*cos(random_azimuth_angle)*sin(random_zenith_angle);
+            random_vector(1) = 0.25*sin(random_azimuth_angle)*sin(random_zenith_angle);
             random_vector(2) = v; //0.5*separation*cos(random_zenith_angle);
             break;
         }

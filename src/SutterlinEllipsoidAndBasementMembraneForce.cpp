@@ -11,10 +11,10 @@ SutterlinEllipsoidAndBasementMembraneForce<DIM>::SutterlinEllipsoidAndBasementMe
      mDeltaOl(1.0),
      mDeltaOlMax(0.2),
      mDOlMin(0.0), // micrometres
-     mKPr(5.2e-0), // N m^{-1}
-     mDeltaAdh(0.0),
-     mKAdh(0.0), // N m^{-1}
-	 mKCBm(0.01)
+     mKPr(25.2e1), // N m^{-1}
+     mDeltaAdh(0.2),
+     mKAdh(25.0), // N m^{-1}
+	 mKCBm(1.0)
 {
 	///\todo work out if any of these default parameter values need to be rescaled
 }

@@ -20,11 +20,11 @@ SkinOrganoidModifier<DIM>::SkinOrganoidModifier()
 	mBasalCellSemiMajorAndMinorAxis(0)=0.5;
 	mBasalCellSemiMajorAndMinorAxis(1)=0.5;
 
-	mSpinosalCellSemiMajorAndMinorAxis(0)=0.7;
-	mSpinosalCellSemiMajorAndMinorAxis(1)=0.3;
+	mSpinosalCellSemiMajorAndMinorAxis(0)=0.5;
+	mSpinosalCellSemiMajorAndMinorAxis(1)=0.25;
 
-	mGranularCellSemiMajorAndMinorAxis(0)=0.8;
-	mGranularCellSemiMajorAndMinorAxis(1)=0.1;
+	mGranularCellSemiMajorAndMinorAxis(0)=1.0;
+	mGranularCellSemiMajorAndMinorAxis(1)=0.25;
 
 
 
@@ -210,6 +210,19 @@ void SkinOrganoidModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
         	p_property->SetIntraCellularCalcium(0.0);
 
         }
+       Node<DIM>* p_node = p_ellipsoid_pop->GetNodeCorrespondingToCell(*cell_iter);
+       p_node->AddNodeAttribute(0.0);
+
+        p_node->rGetNodeAttributes()[NA_SEMIMAJORAXIS] = 0.5+cell_height/5.0;
+
+        double semi_minor=0.5-cell_height/7.5;
+
+        if (semi_minor < 0.2)
+		{
+        	semi_minor=0.2;
+		}
+        p_node->rGetNodeAttributes()[NA_SEMIMINORAXIS] = semi_minor;
+
 
     }
 }

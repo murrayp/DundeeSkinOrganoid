@@ -58,7 +58,7 @@
 // This test is always run sequentially (never in parallel)
 #include "FakePetscSetup.hpp"
 
-class TestSkinOrganoid3d : public AbstractCellBasedWithTimingsTestSuite
+class TestSkinOrganoid3dForExhibition : public AbstractCellBasedWithTimingsTestSuite
 {
 private:
     double mLocationGhosts;
@@ -76,7 +76,7 @@ private:
 
 public:
 
-    void TestSutterlinWithCellDifferentiationNoModifiers()
+    void TestSutterlinWithCellDifferentiationForExhibition()
        {
            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
@@ -96,13 +96,15 @@ public:
            // Create a mesh
            std::vector<Node<3>*> nodes;
            unsigned index = 0;
-           unsigned cells_across = 7;
+           unsigned cells_across = 25;
+           unsigned cells_deep = 7;
+
            unsigned cells_up=1;
            double scaling = basalCellSemiMajorAndMinorAxis(0)*1.0;
            double packing_factor=0.5;
            for (unsigned i=0; i<cells_across; i++)
            {
-               for (unsigned j=0; j<cells_across; j++)
+               for (unsigned j=0; j<cells_deep; j++)
                {
                    for (unsigned k=0; k<cells_up; k++)
                    {
@@ -177,9 +179,9 @@ public:
 
            // Create a simulation
            OffLatticeSimulation<3> simulator(cell_population);
-           simulator.SetOutputDirectory("TestSutterlinEllipsoidCellsNoModifier");
-           simulator.SetSamplingTimestepMultiple(20);
-           simulator.SetDt(1.0/120.0);
+           simulator.SetOutputDirectory("TestSutterlinEllipsoidCellsForExhibition");
+           simulator.SetSamplingTimestepMultiple(120);
+           simulator.SetDt(1.0/120.0/10.0);
 
            simulator.SetEndTime(100.0);
 
@@ -187,9 +189,9 @@ public:
            MAKE_PTR(SutterlinEllipsoidAndBasementMembraneForce<3>, p_force);
            simulator.AddForce(p_force);
 
-           MAKE_PTR(DiffusionForce<3>, p_force_diff);
-           p_force_diff->SetAbsoluteTemperature(0.150);
-                      simulator.AddForce(p_force_diff);
+//           MAKE_PTR(DiffusionForce<3>, p_force_diff);
+//           p_force_diff->SetAbsoluteTemperature(0.150);
+//                      simulator.AddForce(p_force_diff);
 
            MAKE_PTR(SkinOrganoidModifier<3>, p_modifier2);
            simulator.AddSimulationModifier(p_modifier2);
@@ -235,7 +237,7 @@ public:
 
           c_vector<double,3> point5 = zero_vector<double>(3);
           c_vector<double,3> normal5 = zero_vector<double>(3);
-          point5(1)=scaling*cells_across+packing_factor;
+          point5(1)=scaling*cells_deep+packing_factor;
           normal5(1) = 1.0;
 
           MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc5, (&cell_population, point5, normal5)); // y>0
