@@ -96,7 +96,7 @@ public:
            // Create a mesh
            std::vector<Node<3>*> nodes;
            unsigned index = 0;
-           unsigned cells_across = 25;
+           unsigned cells_across = 13;
            unsigned cells_deep = 7;
 
            unsigned cells_up=1;

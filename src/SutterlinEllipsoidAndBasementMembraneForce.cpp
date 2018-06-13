@@ -2,7 +2,10 @@
 #include "SutterlinEllipsoidAndBasementMembraneForce.hpp"
 #include "EllipsoidNodeBasedCellPopulation.hpp"
 #include "EllipsoidNodeAttributes.hpp"
-#include "Debug.hpp"
+#include "RandomNumberGenerator.hpp"
+#include "SkinOrganoidProperty.hpp"
+
+
 
 
 template<unsigned DIM>
@@ -102,8 +105,62 @@ void SutterlinEllipsoidAndBasementMembraneForce<DIM>::AddForceContribution(Abstr
 			c_vector<double,DIM> force = F_adh*v_c_bm;
 
 			rCellPopulation.GetNode(node_global_index)->AddAppliedForceContribution(force);
+
     	}
     }
+
+    	// Add random force
+        double dt = SimulationTime::Instance()->GetTimeStep();
+        double diffusion_constant=0.0051;
+        double nu=1.0;
+
+    	    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = rCellPopulation.Begin();
+    	         cell_iter != rCellPopulation.End();
+    	         ++cell_iter)
+    	    {
+    			unsigned node_global_index = rCellPopulation.GetLocationIndexUsingCell(*cell_iter);
+    			 c_vector<double, DIM> force_contribution;
+
+
+    			 // Get this cell's type six machine property data
+    				        CellPropertyCollection collection = cell_iter->rGetCellPropertyCollection().template GetProperties<SkinOrganoidProperty>();
+    				        if (collection.GetSize() != 1)
+    				        {
+    				            EXCEPTION("SkinOrganoidModifier cannot be used unless each cell has a SkinOrganoidProperty");
+    				        }
+    				        boost::shared_ptr<SkinOrganoidProperty> p_property = boost::static_pointer_cast<SkinOrganoidProperty>(collection.GetProperty());
+
+
+    			        for (unsigned i=0; i<DIM; i++)
+    			        {
+    			            /*
+    			             * The force on this cell is scaled with the timestep such that when it is
+    			             * used in the discretised equation of motion for the cell, we obtain the
+    			             * correct formula
+    			             *
+    			             * x_new = x_old + sqrt(2*D*dt)*W
+    			             *
+    			             * where W is a standard normal random variable.
+    			             *
+    			             *
+    			             */
+    			        	// Noise in xy plane to spread cells around but only for bottom two cell types
+    			        	if ((p_property->GetCellDifferentiatedType()==0 || p_property->GetCellDifferentiatedType()==1) && i<DIM)
+    			            {
+    			        		double xi = RandomNumberGenerator::Instance()->StandardNormalRandomDeviate();
+    			            	force_contribution[i] = (nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi;
+
+    			            }
+    			        	else
+    			        	{
+    			        		force_contribution[i]=0.0;
+    			        	}
+    			        }
+
+    				rCellPopulation.GetNode(node_global_index)->AddAppliedForceContribution(force_contribution);
+
+    	    }
+
 }
 
 template<unsigned DIM>
