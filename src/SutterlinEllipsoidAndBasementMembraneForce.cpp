@@ -16,7 +16,7 @@ SutterlinEllipsoidAndBasementMembraneForce<DIM>::SutterlinEllipsoidAndBasementMe
      mDOlMin(0.0), // micrometres
      mKPr(25.2e1), // N m^{-1}
      mDeltaAdh(0.2),
-     mKAdh(25.0), // N m^{-1}
+     mKAdh(205.0), // N m^{-1}
 	 mKCBm(1.0)
 {
 	///\todo work out if any of these default parameter values need to be rescaled
@@ -111,7 +111,7 @@ void SutterlinEllipsoidAndBasementMembraneForce<DIM>::AddForceContribution(Abstr
 
     	// Add random force
         double dt = SimulationTime::Instance()->GetTimeStep();
-        double diffusion_constant=0.0051;
+        double diffusion_constant=0.0011;
         double nu=1.0;
 
     	    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = rCellPopulation.Begin();

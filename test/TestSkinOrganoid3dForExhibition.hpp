@@ -3,6 +3,7 @@
 #define TESTSKINORGANOID3D_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include "../../Somitogenesis/src/GeneralisedLinearSpringForceG1PhaseGrowth.hpp"
 
 // Must be included before other cell_based headers
 #include "CellBasedSimulationArchiver.hpp"
@@ -11,7 +12,6 @@
 #include "TrianglesMeshReader.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "TrianglesMeshWriter.hpp"
-#include "GeneralisedLinearSpringForce.hpp"
 #include "FixedG1GenerationalCellCycleModel.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "AbstractCellBasedWithTimingsTestSuite.hpp"
@@ -96,8 +96,8 @@ public:
            // Create a mesh
            std::vector<Node<3>*> nodes;
            unsigned index = 0;
-           unsigned cells_across = 13;
-           unsigned cells_deep = 7;
+           unsigned cells_across = 4;
+           unsigned cells_deep = 4;
 
            unsigned cells_up=1;
            double scaling = basalCellSemiMajorAndMinorAxis(0)*1.0;
